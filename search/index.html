@@ -8,13 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="description" content="The limits of my language mean the limits of my world.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="fiigii.com">
-<meta property="og:url" content="http://fiigii.com/archives/2019/03/index.html">
+<meta property="og:title" content="search">
+<meta property="og:url" content="http://fiigii.com/search/index.html">
 <meta property="og:site_name" content="fiigii.com">
 <meta property="og:description" content="The limits of my language mean the limits of my world.">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-03-04T00:39:34.888Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fiigii.com">
+<meta name="twitter:title" content="search">
 <meta name="twitter:description" content="The limits of my language mean the limits of my world.">
     
     
@@ -35,7 +36,7 @@
         
     
     <!-- title -->
-    <title>Writing: 2019/3</title>
+    <title>search</title>
     <!-- styles -->
     <link rel="stylesheet" href="/css/style.css">
     <!-- persian styles -->
@@ -81,42 +82,22 @@
 </header>
 
         
-        <div id="archive">
-  <ul class="post-list">
-    
-    
-    
-    
-      
-      
-      
-      
-        <h2>2019</h2>
-      
-      <li class="post-item">
-        
-    <div class="meta">
-      
-        
-          <time datetime="2019-03-04T00:47:03.000Z" itemprop="datePublished">2019-03-03</time>
-        
-      
-    </div>
-
-
-        <span>
-    
-        <a class href="/2019/03/03/Hardware-intrinsic-in-NET-Core-3-0-Introduction/">Hardware intrinsic in .NET Core 3.0 - Introduction</a>
-    
-
-
-</span>
-      </li>
-    
-  </ul>
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
   
 
-</div>
+  <div class="content" itemprop="articleBody">
+      
+        <section id="search">
+  <form>
+    <input type="text" class="search-input" id="search-input" placeholder="Search...">
+  </form>
+  <div id="search-result"></div>
+  <p class="search-no-result">No results found.</p>
+</section>
+
+      
+  </div>
+</article>
 
         
         <footer id="footer">
@@ -151,6 +132,41 @@
 <script src="/js/main.js"></script>
 <!-- search -->
 
+  <script src="/js/search.js"></script>
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList[0].addedNodes) {
+        $(".search-no-result").show(200);
+      } else {
+        $(".search-no-result").hide();
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
 <!-- Google Analytics -->
 
 <!-- Baidu Analytics -->
@@ -164,7 +180,7 @@
             var dsq = document.createElement('script');
             dsq.type = 'text/javascript';
             dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
             (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
         }());
     </script>
