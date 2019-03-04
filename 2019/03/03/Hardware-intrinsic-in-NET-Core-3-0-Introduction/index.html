@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="fiigii.com">
 <meta property="og:description" content="In the past two years, I worked for Intel Corporation as a compiler engineer. The major project I worked during that period of time is to design and implement the x86 hardware intrinsic for .NET Core.">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-04T08:01:34.146Z">
+<meta property="og:updated_time" content="2019-03-04T09:14:26.580Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hardware intrinsic in .NET Core 3.0 - Introduction">
 <meta name="twitter:description" content="In the past two years, I worked for Intel Corporation as a compiler engineer. The major project I worked during that period of time is to design and implement the x86 hardware intrinsic for .NET Core.">
@@ -66,6 +66,8 @@
           <li><a href="/archives/">Writing</a></li>
          
           <li><a href="/Search/">Search</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
         
       </ul>
     </span>
@@ -160,7 +162,7 @@
 <li>Computing intrinsics: this is the major group of intrinsic APIs. Usually, they take parameters with  SIMD types (<code>Vector128&lt;T&gt;</code>, <code>Vector256&lt;T&gt;</code>, etc.) and/or scalar numeric types (<code>int</code>, <code>float</code>, <code>ushort</code>, etc), return a computing result. <code>Avx.Add</code> is a typical example of this group.</li>
 <li>Memory-access intrinsics: SIMD computing intrinsics accept input data that is already in vector variables. However, data is usually organized in memory/file with their own format/types rather than <code>Vector128&lt;T&gt;</code> and <code>Vector256&lt;T&gt;</code>. So, we need memory-access intrinsics to convert in-memory data between in-variable vectors. The most common memory-access intrinsics are <code>Sse.LoadVector128</code>, <code>Sse2.LoadVector128</code>, <code>Avx.LoadVector256</code>, and <code>Sse.Store</code>, <code>Sse2.Store</code>, <code>Avx.Store</code>. </li>
 </ol>
-<p>The main functionality of <code>SimdAdd</code> is fulfilled by <code>Avx.Add</code> that takes two vectors of <code>float</code> (each vector contain 8 <code>float</code> numbers, 256-bit/32-bit == 8), adds <code>float</code> numbers one by one, and puts the sum vector in a new <code>Vector256&lt;float&gt;</code> variable (<code>res</code>).</p>
+<p>The main functionality of <code>SimdAdd</code> is fulfilled by <code>Avx.Add</code> that takes two vectors of <code>float</code> (each vector contain 8 <code>float</code> numbers), adds <code>float</code> numbers 8-by-8 (256-bit/32-bit == 8), and puts the sum vector in a new <code>Vector256&lt;float&gt;</code> variable (<code>res</code>).</p>
 <p>Finally, preparing two input arrays and calling <code>SimdAdd</code> from another function (e.g., <code>Main</code>) to see the result<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Avx.IsSupported)</span><br><span class="line">&#123;</span><br><span class="line">    sum = SimdAdd(a, b, <span class="number">256</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>Note, please check the hardware capability (by <code>IsSupported</code>) before calling any platform-specific intrinsic. Executing hardware intrinsic on incorrect hardware platforms would throw <code>System.PlatformNotSupportedException</code>.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; dotnet run</span><br><span class="line"></span><br><span class="line">Unhandled Exception: System.PlatformNotSupportedException: Operation is not supported on this platform.</span><br><span class="line">   at System.Runtime.Intrinsics.X86.Avx.LoadVector256(Single* address)</span><br><span class="line">   at IntrinsicDemo.IntrinsicDemo.SimdAdd(Single[] a, Single[] b, Int32 n) in /Users/fiigii/workspace/test/IntrinsicDemo/Program.cs:line 30</span><br><span class="line">   at IntrinsicDemo.IntrinsicDemo.Main(String[] args) in /Users/fiigii/workspace/test/IntrinsicDemo/Program.cs:line 17</span><br></pre></td></tr></table></figure></p>
 <p>You may wonder how I got such an old CPU that does not support AVX instructions for showing the above message. Actually, during developing this feature in JIT compiler, we have considered the situations that hardware specific programs are difficult to test for all the hardware. So, we provide several environment variables to save developers’ money from purchasing old hardware for testing :). For example, you can set <code>COMPlus_EnableAVX=0</code> to disable AVX  (and newer ISAs that depend on AVX) in your .NET Core process. Then, the code path for older CPUs can be tested on new machines. .NET Core 3.0 has one such environment variable for each <code>x86</code> ISA (e.g., <code>COMPlus_EnableSSE41</code>, <code>COMPlus_EnableAVX2</code>, <code>COMPlus_EnableFMA</code>, etc.).</p>
@@ -200,6 +202,8 @@
           <li><a href="/archives/">Writing</a></li>
          
           <li><a href="/Search/">Search</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
         
       </ul>
     </div>
@@ -250,6 +254,8 @@
           <li><a href="/archives/">Writing</a></li>
          
           <li><a href="/Search/">Search</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
         
       </ul>
     </nav>
