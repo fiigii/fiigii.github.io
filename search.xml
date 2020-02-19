@@ -37,9 +37,9 @@
       
         <tags>
             
-            <tag> .NET Core </tag>
-            
             <tag> x86 </tag>
+            
+            <tag> .NET Core </tag>
             
             <tag> SIMD </tag>
             
