@@ -6,23 +6,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="Instruction selection is a critical portion in compilers, which different instructions could cause significantly performance difference even though the semantics not changed. Does register selection a">
+    <meta name="description" content="Instruction selection is a critical portion in compilers, as different instructions could cause significant performance differences even though the semantics not changed. Does register selection also">
 <meta name="keywords" content="x86,Compiler,Intel">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Does register selection matter to performance on x86 CPUs?">
 <meta property="og:url" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/index.html">
 <meta property="og:site_name" content="fiigii.com">
-<meta property="og:description" content="Instruction selection is a critical portion in compilers, which different instructions could cause significantly performance difference even though the semantics not changed. Does register selection a">
+<meta property="og:description" content="Instruction selection is a critical portion in compilers, as different instructions could cause significant performance differences even though the semantics not changed. Does register selection also">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">
 <meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/LEA.png">
 <meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS1.png">
 <meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS2.png">
 <meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS3.png">
-<meta property="og:updated_time" content="2020-02-19T07:50:24.753Z">
+<meta property="og:updated_time" content="2020-02-20T02:02:36.484Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Does register selection matter to performance on x86 CPUs?">
-<meta name="twitter:description" content="Instruction selection is a critical portion in compilers, which different instructions could cause significantly performance difference even though the semantics not changed. Does register selection a">
+<meta name="twitter:description" content="Instruction selection is a critical portion in compilers, as different instructions could cause significant performance differences even though the semantics not changed. Does register selection also">
 <meta name="twitter:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">
     
     
@@ -153,7 +153,7 @@
   
 
   <div class="content" itemprop="articleBody">
-    <p>Instruction selection is a critical portion in compilers, which different instructions could cause significantly performance difference even though the semantics not changed. Does register selection also matter to performance (assume the register selection does not lead to less or more register spills)? Honestly, I never intentionally thought of this question until I came across it on Zhihu (a Chinese Q&amp;A website). But this is a really interesting topic that reflects many tricks of assembly programming and compiler code generation. So, that deserves a blog to refresh my memory and give a share :) </p>
+    <p>Instruction selection is a critical portion in compilers, as different instructions could cause significant performance differences even though the semantics not changed. Does register selection also matter to performance (assume the register selection does not lead to less or more register spills)? Honestly, I never intentionally thought of this question until I came across it on Zhihu (a Chinese Q&amp;A website). But this is a really interesting topic that reflects many tricks of assembly programming and compiler code generation. So, that deserves a blog to refresh my memory and give a share :) </p>
 <p>In other words, the question is equivalent to </p>
 <blockquote>
 <p>Is one of the instructions below faster than another one?<br><img src="/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png" alt>  </p>
@@ -162,7 +162,7 @@
 <p>From undergraduate classes in CS departments, we know modern computer architectures usually have a pipeline stage called <strong>register renaming</strong> that assigns real physical registers to the named logic register referred to in an assembly instruction. For example, the following code uses <code>EAX</code> twice but the two usages are not related to each other.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ADD EDX, EAX</span><br><span class="line">ADD EAX, EBX</span><br></pre></td></tr></table></figure></p>
 <p>Assume this code is semantically correct. In practice, CPUs usually assign different physical registers to the two <code>EAX</code> for breaking <a href="https://en.wikipedia.org/wiki/Data_dependency#Anti-dependency" target="_blank" rel="noopener">anti-dependency</a>. So they can parallel execute on pipelined superscalar CPUs, and <code>ADD EAX, EBX</code> does not have to worry about if writing over <code>EAX</code> impacts <code>ADD EDX, EAX</code>. <strong>Therefore, we usually suppose different register names in assembly code do NOT cause performance difference on modern x86 CPUs.</strong></p>
 <p>Is the story over? No.</p>
-<p>The above statements only hold for general cases. There are a lot of conner cases existing in the real world that our college courses never reached. CPUs are pearls of modern engineering and industry, which also have many conner cases breaking our common sense. So, different register names will impact performance a lot, sometimes. I collected these conner cases in four categories. </p>
+<p>The above statements only hold for general cases. There are a lot of corner cases existing in the real world that our college courses never reached. CPUs are pearls of modern engineering and industry, which also have many corner cases breaking our common sense. So, different register names will impact performance a lot, sometimes. I collected these corner cases in four categories. </p>
 <blockquote>
 <p>Note, the rest of the article only talks about Intel micro-architectures. </p>
 </blockquote>
