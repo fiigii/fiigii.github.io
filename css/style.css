@@ -472,7 +472,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  overflow-wrap: break-word;
 }
 .content p {
   hyphens: auto;
