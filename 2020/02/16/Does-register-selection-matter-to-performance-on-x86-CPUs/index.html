@@ -11,19 +11,19 @@
 <meta property="og:url" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/index.html">
 <meta property="og:site_name" content="fiigii.com">
 <meta property="og:locale">
-<meta property="og:image" content="http://fiigii.com/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">
-<meta property="og:image" content="http://fiigii.com/Does-register-selection-matter-to-performance-on-x86-CPUs/LEA.png">
-<meta property="og:image" content="http://fiigii.com/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS1.png">
-<meta property="og:image" content="http://fiigii.com/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS2.png">
-<meta property="og:image" content="http://fiigii.com/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS3.png">
+<meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">
+<meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/LEA.png">
+<meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS1.png">
+<meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS2.png">
+<meta property="og:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS3.png">
 <meta property="article:published_time" content="2020-02-17T02:29:37.000Z">
-<meta property="article:modified_time" content="2023-04-11T07:47:00.084Z">
+<meta property="article:modified_time" content="2023-04-16T08:05:50.135Z">
 <meta property="article:author" content="Fei Peng">
 <meta property="article:tag" content="x86">
 <meta property="article:tag" content="Compiler">
 <meta property="article:tag" content="Intel">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://fiigii.com/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">
+<meta name="twitter:image" content="http://fiigii.com/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">
     
     
       
@@ -159,7 +159,7 @@
     <p>Instruction selection is a critical portion in compilers, as different instructions could cause significant performance differences even though the semantics not changed. Does register selection also matter to performance (assume the register selection does not lead to less or more register spills)? Honestly, I never intentionally thought of this question until I came across it on Zhihu (a Chinese Q&amp;A website). But this is a really interesting topic that reflects many tricks of assembly programming and compiler code generation. So, that deserves a blog to refresh my memory and give a share :) </p>
 <p>In other words, the question is equivalent to </p>
 <blockquote>
-<p>Is one of the instructions below faster than another one?<br><img src="/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">  </p>
+<p>Is one of the instructions below faster than another one?<br><img src="/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/ADD.png">  </p>
 </blockquote>
 <p>And the question can be extended to any instruction of x86&#x2F;x86-64 ISAs (not only on <code>ADD</code>).</p>
 <p>From undergraduate classes in CS departments, we know modern computer architectures usually have a pipeline stage called <strong>register renaming</strong> that assigns real physical registers to the named logic register referred to in an assembly instruction. For example, the following code uses <code>EAX</code> twice but the two usages are not related to each other.</p>
@@ -171,17 +171,17 @@
 <p>Note, the rest of the article only talks about Intel micro-architectures. </p>
 </blockquote>
 <h2 id="Special-Instructions"><a href="#Special-Instructions" class="headerlink" title="Special Instructions"></a>Special Instructions</h2><p>A few instructions are executing slower with certain logic registers due to micro-architecture limitations. The most famous one is <code>LEA</code>.<br><code>LEA</code> was designed to leverage the complex and powerful x86 addressing-mode in wider areas, such as arithmetic computations, which requires fewer registers for intermediate results than arithmetic instructions. However, certain forms of <code>LEA</code> only can be executed on port1, which those <code>LEA</code> forms with lower ILP and higher latency are called <strong>slow LEA</strong>. According to the Intel optimization manual, using <code>EBP</code>, <code>RBP</code>, or <code>R13</code> as the base address will make LEA slower.</p>
-<p><img src="/Does-register-selection-matter-to-performance-on-x86-CPUs/LEA.png"></p>
+<p><img src="/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/LEA.png"></p>
 <p>Although compilers could assign other registers to the base address variables, sometimes that is impossible in register allocations and there are more forms of slow LEAs that cannot be improved by register selection. Hence, in general, compilers avoid generating slow LEAs by (1) replacing <code>LEA</code> by equivalent instruction sequences that may need more temporary registers or (2) folding <code>LEA</code> into its user instructions’ addressing modes.</p>
 <h2 id="Partial-Register-Stall"><a href="#Partial-Register-Stall" class="headerlink" title="Partial Register Stall"></a>Partial Register Stall</h2><p>Most kinds of x86 registers (e.g., general-purpose registers, FLAGS, and SIMD registers, etc.) can be accessed by multiple granularities. For instance, <code>RAX</code> can be partially accessed via <code>EAX</code>, <code>AX</code>, <code>AH</code>, and <code>AL</code>. Accessing <code>AL</code> is independent of <code>AH</code> on Intel CPUs, but reading <code>EAX</code> content that written though <code>AL</code> has significant performance degradation (5-6 cycles of latency). Consequently, Intel suggests always using registers with sizes of 32- or 64-bit.</p>
-<p><img src="/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS1.png"></p>
+<p><img src="/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS1.png"></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">MOV   AL,  BYTE PTR [RDI]</span><br><span class="line">MOV   EBX, EAX <span class="comment">// partial register stall</span></span><br><span class="line"></span><br><span class="line">MOVZX EBX, BYTE PTR [RDI]</span><br><span class="line">AND   EAX, <span class="number">0xFFFFFF00</span></span><br><span class="line">OR    EBX, EAX <span class="comment">// no partial register stall</span></span><br><span class="line"></span><br><span class="line">MOVZX EAX, BYTE PTR [RDI]</span><br><span class="line">MOV   EBX, EAX <span class="comment">// no partial register stall</span></span><br></pre></td></tr></table></figure>
 <p>Partial register stall is relatively easy to detect on general-purpose registers, but similar problems could happen on FLAGS registers and that is pretty covert. Certain instructions like <code>CMP</code> update all bits of FLAGS as the execution results, but <code>INC</code> and <code>DEC</code> write into FLAGS except <code>CF</code>. So, if <code>JCC</code> directly use FLAGS content from <code>INC</code>&#x2F;<code>DEC</code>, <code>JCC</code> would possibly have false dependency from unexpected instructions.</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CMP EDX, DWORD PTR [EBP]</span><br><span class="line">...</span><br><span class="line">INC ECX</span><br><span class="line">JBE LBB_XXX <span class="comment">// JBE reads CF and ZF,  so there would be a false dependency from CMP</span></span><br></pre></td></tr></table></figure>
 <p>Consequently, on certain Intel architectures, compilers usually do not generate <code>INC</code>&#x2F;<code>DEC</code> for loop count updating (i.e., <code>i++</code> of <code>for (int i = N; i != 0; i--)</code>) or reuse the <code>INC</code>&#x2F;<code>DEC</code> produced FLAGS on <code>JCC</code>. On the flip side, that would increase the code size and make I-cache issues. Fortunately, Intel has fixed the partial register stall on FLAGS since <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Sandy_Bridge">SandyBridge</a>. But that still exists on most of the mainstream ATOM CPUs.</p>
-<p><img src="/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS2.png"></p>
+<p><img src="/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS2.png"></p>
 <p>So far, you may already think of SIMD registers. Yes, the partial register stall also occurs on SIMD registers. </p>
-<p><img src="/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS3.png"></p>
+<p><img src="/2020/02/16/Does-register-selection-matter-to-performance-on-x86-CPUs/PRS3.png"></p>
 <p>But partial SIMD&#x2F;FLAGS register stall is an instruction selection issue instead of register selection. Let’s finish this section and move on.</p>
 <h2 id="Architecture-Bugs"><a href="#Architecture-Bugs" class="headerlink" title="Architecture Bugs"></a>Architecture Bugs</h2><p>Certain Intel architectures (SandyBridge, Haswell, and Skylake) have <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/21390165/why-does-breaking-the-output-dependency-of-lzcnt-matter">a bug</a> on three instructions - <code>LZCNT</code>, <code>TZCNT</code>, and <code>POPCNT</code>. These three instructions all have 2 operands (1 source register and 1 destination register), but they are different from most of the other 2-operand instructions like <code>ADD</code>. <code>ADD</code> reads its source <strong>and</strong> destination, and stores the result back to the destination register, which ADD-like instructions are called RMW (Read-Modify-Write). <code>LZCNT</code>, <code>TZCNT</code>, and <code>POPCNT</code> are not RWM that just read the source and write back to the destination. Due to some unknown reason, those Intel architectures incorrectly treat <code>LZCNT</code>, <code>TZCNT </code>, and <code>POPCNT</code> as the normal RWM instructions, which the <code>LZCNT</code>, <code>TZCNT </code>, and <code>POPCNT</code> have to wait for the computing results in both operands. Actually, only waiting for the source register getting done is enough.</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POPCNT  RCX, QWORD PTR [RDI]</span><br><span class="line">...</span><br><span class="line">POPCNT  RCX, QWORD PTR [RDI+<span class="number">8</span>]</span><br></pre></td></tr></table></figure>
