@@ -5,7 +5,7 @@ export const SITE = {
   desc: "The limits of my language mean the limits of my world.",
   title: "Fei's Blog",
   ogImage: "astropaper-og.jpg",
-  lightAndDarkMode: true,
+  lightAndDarkMode: false,
   postPerIndex: 4,
   postPerPage: 4,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes
