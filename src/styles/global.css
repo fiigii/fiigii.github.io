@@ -5,9 +5,9 @@
 
 :root,
 html[data-theme="light"] {
-  --background: #fdfdfd;
+  --background: #FBF8F2;
   --foreground: #282728;
-  --accent: #278203f5;
+  --accent: #108203f5;
   --muted: #e6e6e6;
   --border: #ece9e9;
 }

@@ -3,7 +3,7 @@ export const SITE = {
   author: "Fei Peng",
   profile: "https://fiigii.com/",
   desc: "The limits of my language mean the limits of my world.",
-  title: "Fei's Blog",
+  title: "Fei Peng",
   ogImage: "astropaper-og.jpg",
   lightAndDarkMode: false,
   postPerIndex: 4,
