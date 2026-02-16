@@ -93,7 +93,7 @@
 
   /* ===== Code Blocks & Syntax Highlighting ===== */
   .astro-code {
-    @apply flex border bg-[#F4EFE4]! text-(--shiki-light) outline-border [&_span]:text-(--shiki-light);
+    @apply flex border bg-[#202A3A]! text-(--shiki-light) outline-border [&_span]:text-(--shiki-light);
   }
 
   html[data-theme="dark"] .astro-code {
